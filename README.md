@@ -11,10 +11,10 @@ The code is built on the example code provided by ABB.
 In RAPID there is a waiting program, the robot stand still in one point and wait for data from the sensor.
 
 _____________________________________________________________________________________________________________________________
-The RAPID code: 
+#The RAPID code: 
 
  
-MODULE EGM_test_UDP
+  MODULE EGM_test_UDP
     
     VAR egmident egmID1;
     VAR egmstate egmSt1;
@@ -58,17 +58,16 @@ MODULE EGM_test_UDP
             
         ENDIF
             
-        ENDPROC
+    ENDPROC
         
         
-        PROC runEGM()
-            EGMActPose egmID1\Tool:=UISpenholder \WObj:=wobj0, posecorTable,EGM_FRAME_WOBJ, posesenTable, EGM_FRAME_WOBJ 
-            \x:=egm_minmax_lin1 \y:=egm_minmax_lin1 \z:=egm_minmax_lin1
-            \rx:=egm_minmax_rot1 \ry:=egm_minmax_rot1 \rz:=egm_minmax_rot1\LpFilter:=2\Samplerate:=4\MaxSpeedDeviation:= 40;
+     PROC runEGM()
+         EGMActPose egmID1\Tool:=UISpenholder \WObj:=wobj0, posecorTable,EGM_FRAME_WOBJ, posesenTable, EGM_FRAME_WOBJ 
+         \x:=egm_minmax_lin1 \y:=egm_minmax_lin1 \z:=egm_minmax_lin1
+         \rx:=egm_minmax_rot1 \ry:=egm_minmax_rot1 \rz:=egm_minmax_rot1\LpFilter:=2\Samplerate:=4\MaxSpeedDeviation:= 40;
                 
-            EGMRunPose egmID1, EGM_STOP_RAMP_DOWN\x \y \z\CondTime:=20 \RampInTime:=0.05\RampOutTime:=0.5;
-            egmSt1:=EGMGetState(egmID1);
-            
-        ENDPROC
+         EGMRunPose egmID1, EGM_STOP_RAMP_DOWN\x \y \z\CondTime:=20 \RampInTime:=0.05\RampOutTime:=0.5;
+          egmSt1:=EGMGetState(egmID1);
+     ENDPROC
  
-    ENDMODULE
+  ENDMODULE
