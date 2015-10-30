@@ -10,7 +10,8 @@ The code is built on the example code provided by ABB.
 
 In RAPID there is a waiting program, the robot stand still in one point and wait for data from the sensor.
 
-Here is the RAPID code: 
+_____________________________________________________________________________________________________________________________
+The RAPID code: 
 
  
 MODULE EGM_test_UDP
