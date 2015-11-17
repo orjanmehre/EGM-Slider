@@ -183,8 +183,8 @@ namespace egmtest
 
             Debug.WriteLine("z = " + Height.ToString());
 
-            pc.SetX(x)
-              .SetY(y)
+            pc.SetX(0)
+              .SetY(0)
               .SetZ(Height);
 
             pq.SetU0(0.0)

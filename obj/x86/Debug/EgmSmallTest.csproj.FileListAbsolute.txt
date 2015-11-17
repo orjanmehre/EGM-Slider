@@ -23,8 +23,6 @@ C:\Users\Orjan\Documents\GitHub\EGM_Slider\obj\x86\Debug\EgmSmallTest.exe
 C:\Users\Orjan\Documents\GitHub\EGM_Slider\obj\x86\Debug\EgmSmallTest.pdb
 C:\Users\Orjan\Documents\GitHub\EGM_Slider\bin\Debug\EgmSmallTest.exe
 C:\Users\Orjan\Documents\GitHub\EGM_Slider\bin\Debug\EgmSmallTest.pdb
-C:\Users\Orjan\Documents\GitHub\EGM_Slider\bin\Debug\Google.ProtocolBuffers.xml
-C:\Users\Orjan\Documents\GitHub\EGM_Slider\bin\Debug\Google.ProtocolBuffers.Serialization.xml
-C:\Users\Orjan\Documents\GitHub\EGM_Slider\obj\x86\Debug\EgmSmallTest.csprojResolveAssemblyReference.cache
 C:\Users\Orjan\Documents\GitHub\EGM_Slider\obj\x86\Debug\EgmSmallTest.ControlPanel.resources
 C:\Users\Orjan\Documents\GitHub\EGM_Slider\obj\x86\Debug\EgmSmallTest.csproj.GenerateResource.Cache
+C:\Users\Orjan\Documents\GitHub\EGM_Slider\obj\x86\Debug\EgmSmallTest.csprojResolveAssemblyReference.cache
