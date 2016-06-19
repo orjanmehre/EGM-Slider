@@ -1,13 +1,9 @@
-### EGM_Slider
-Simulates a sensor for use with EGM on ABB robot
+# EGM-Slider
 
-The program makes a square in the xy-plane that it sends over to a ABB-robot using UdPUc.
-It also contains a slider that enables the user to adjust the height of the robot in the path. 
+This program uses a simulated sensor to adjust the height of an ABB robotic arm with Externally Guided Motion implemented. 
+The robot moves in a square and the height is adjusted using a slider. The robot must be compatible with RobotWare 6.x.
+All tests were done on an IRB140 industrial robotic arm. 
 
-This program is made for testing the concept of EGM.
+Program.cs is built upon the example code given by ABB
 
-The code is built on the example code provided by ABB. 
-
-In RAPID there is a waiting program, the robot stand still in one point and wait for data from the sensor.
-A pack and go file is located in the folder Robotstudio
-
+More information on Externally Guided Motion can be found in: Application manual - Controller software IRC5, which is a manual released by ABB. 
