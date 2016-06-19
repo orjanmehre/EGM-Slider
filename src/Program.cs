@@ -1,18 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using System.Threading.Tasks;
-using abb.egm;
 using System.Windows.Forms;
-using EgmSmallTest;
-using System.Diagnostics;
-
+using abb.egm;
 
 //////////////////////////////////////////////////////////////////////////
 // Sample program using protobuf-csharp-port 
@@ -27,49 +19,18 @@ using System.Diagnostics;
 // 7) Install protobuf-csharp via NuGet, select in Visual Studio, Tools Nuget Package Manager and then Package Manager Console and type PM>Install-Package Google.ProtocolBuffers
 // 8) Add the generated file egm.cs to the Visual Studio project (add existing item)
 // 9) Copy the code below and then compile, link and run.
-//
-// Copyright (c) 2014, ABB
-// All rights reserved.
-//
-// Redistribution and use in source and binary forms, with
-// or without modification, are permitted provided that 
-// the following conditions are met:
-//
-//    * Redistributions of source code must retain the 
-//      above copyright notice, this list of conditions 
-//      and the following disclaimer.
-//    * Redistributions in binary form must reproduce the 
-//      above copyright notice, this list of conditions 
-//      and the following disclaimer in the documentation 
-//      and/or other materials provided with the 
-//      distribution.
-//    * Neither the name of ABB nor the names of its 
-//      contributors may be used to endorse or promote 
-//      products derived from this software without 
-//      specific prior written permission.
-//
-// THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" 
-// AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE 
-// IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE 
-// ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE 
-// LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL 
-// DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR 
-// SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER 
-// CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, 
-// OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF 
-// THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-//
-namespace egmtest
+//////////////////////////////////////////////////////////////////////////
+
+namespace EgmSmallTest
 {
     class Program
     {
         // listen on this port for inbound messages
-        public static int _ipPortNumber = 6510;  
+        public static int IpPortNumber = 6510;  
 
         static void Main(string[] args)
         {
             Sensor s = new Sensor();
-            //s.Start();
             Application.Run(new ControlPanel(s));
 
             Console.WriteLine("Press any key to Exit");
@@ -83,24 +44,36 @@ namespace egmtest
         private UdpClient _udpServer = null;
         private bool _exitThread = false;
         private uint _seqNumber = 0;
+        private int _distanceSquare;
+        private int _xStartPoint;
+        private int _yStartPoint;
+        private float _x;
+        private float _y;
+        private int _robotX;
+        private int _robotY;
+        private int _robotZ; 
 
         public double Height { get; set; }
-        public int DistanceSquare = 200;
-        public int xStartPoint = 50;
-        public int yStartPoint = -400;
-        public float x = 50;
-        public float y = -400;
-        public int robotX = 0;
-        public int robotY = 0;
 
-        
+        // Set the measurements for the square and initialize the start points
+        public Sensor()
+        {
+            _distanceSquare = 200;
+            _xStartPoint = 50;
+            _yStartPoint = -400;
+            _x = 50;
+            _y = -400;
+            _robotX = 0;
+            _robotY = 0;
+            _robotZ = 0; 
+        }
         
 
         public void SensorThread()
         {
             // create an udp client and listen on any address and the port _ipPortNumber
-            _udpServer = new UdpClient(Program._ipPortNumber);
-            var remoteEP = new IPEndPoint(IPAddress.Any, Program._ipPortNumber);
+            _udpServer = new UdpClient(Program.IpPortNumber);
+            var remoteEP = new IPEndPoint(IPAddress.Any, Program.IpPortNumber);
 
             while (_exitThread == false)
             {
@@ -115,11 +88,13 @@ namespace egmtest
                     // display inbound message
                     DisplayInboundMessage(robot);
 
-                    //Debug.WriteLine(robot); //To read message from robot
-                    robotX = Convert.ToInt32((robot.FeedBack.Cartesian.Pos.X)); // In relation to WobjBordN
-                    robotY = Convert.ToInt32((robot.FeedBack.Cartesian.Pos.Y)); // In relation to WobjBordN
-                    int robotZ = Convert.ToInt32((robot.FeedBack.Cartesian.Pos.Z));
-                    Debug.WriteLine("Robot x-pos = " + robotX + " Robot y-pos = " + robotY + " Robot z-pos " + robotZ);
+                    // Get the robots X-position
+                    _robotX = Convert.ToInt32((robot.FeedBack.Cartesian.Pos.X)); 
+                    // Get the robots Y-position
+                    _robotY = Convert.ToInt32((robot.FeedBack.Cartesian.Pos.Y)); 
+                    // Get the robots Z-position
+                    _robotZ = Convert.ToInt32((robot.FeedBack.Cartesian.Pos.Z));
+
 
                 
                     // create a new outbound sensor message
@@ -131,8 +106,7 @@ namespace egmtest
                         EgmSensor sensorMessage = sensor.Build();
                         sensorMessage.WriteTo(memoryStream);
 
-                        //Debug.WriteLine(sensorMessage); //To read message from sensor
-                        // send the udp message to the robot
+                        // send the UDP message to the robot
                         int bytesSent = _udpServer.Send(memoryStream.ToArray(),
                                                        (int)memoryStream.Length, remoteEP);
                         if (bytesSent < 0)
@@ -165,8 +139,10 @@ namespace egmtest
             // create a header
             EgmHeader.Builder hdr = new EgmHeader.Builder();
             hdr.SetSeqno(_seqNumber++)
-               .SetTm((uint)DateTime.Now.Ticks) //  Timestamp in milliseconds (can be used for monitoring delays)
-               .SetMtype(EgmHeader.Types.MessageType.MSGTYPE_CORRECTION); // Sent by sensor, MSGTYPE_DATA if sent from robot controller
+               //Timestamp in milliseconds (can be used for monitoring delays)
+               .SetTm((uint)DateTime.Now.Ticks)
+               //Sent by sensor, MSGTYPE_DATA if sent from robot controller
+               .SetMtype(EgmHeader.Types.MessageType.MSGTYPE_CORRECTION); 
 
             sensor.SetHeader(hdr);
 
@@ -176,15 +152,11 @@ namespace egmtest
             EgmQuaternion.Builder pq = new EgmQuaternion.Builder();
             EgmCartesian.Builder pc = new EgmCartesian.Builder();
 
-            x = X_Values_Square();
-            Debug.WriteLine("x =" + x.ToString());
-            y = Y_Values_Square();
-            Debug.WriteLine("y = " + y.ToString());
+            _x = X_Values_Square();
+            _y = Y_Values_Square();
 
-            Debug.WriteLine("z = " + Height.ToString());
-
-            pc.SetX(0)
-              .SetY(0)
+            pc.SetX(_x)
+              .SetY(_y)
               .SetZ(Height);
 
             pq.SetU0(0.0)
@@ -195,8 +167,10 @@ namespace egmtest
             pos.SetPos(pc)
                 .SetOrient(pq);
 
-            planned.SetCartesian(pos);  // bind pos object to planned
-            sensor.SetPlanned(planned); // bind planned to sensor object
+            // bind pos object to planned
+            planned.SetCartesian(pos);
+            // bind planned to sensor object 
+            sensor.SetPlanned(planned); 
 
             return;
         }
@@ -216,41 +190,38 @@ namespace egmtest
         }
 
         
-        //Set y-values square
+        //Set the Y-positions for the square
         public float Y_Values_Square()
         {
-            if (robotX == xStartPoint + DistanceSquare && robotY == yStartPoint)
+            if (_robotX == _xStartPoint + _distanceSquare && _robotY == _yStartPoint)
             {
-                y = yStartPoint - DistanceSquare;
+                _y = _yStartPoint - _distanceSquare;
 
             }
-            else if (robotX == xStartPoint && robotY == yStartPoint - DistanceSquare && y == yStartPoint - DistanceSquare)
+            else if (_robotX == _xStartPoint && _robotY == _yStartPoint - _distanceSquare && _y == _yStartPoint - _distanceSquare)
             {
-                y = y + DistanceSquare;
+                _y = _y + _distanceSquare;
             
             }
-             return y;
+             return _y;
         }
 
 
-        // Set x-values square
+        // Set the X-positions for the square
         public float X_Values_Square()
         {
-            if (robotX == xStartPoint && robotY == yStartPoint && x == xStartPoint)
+            if (_robotX == _xStartPoint && _robotY == _yStartPoint && _x == _xStartPoint)
             {
-                x = x + DistanceSquare;
+                _x = _x + _distanceSquare;
             }
 
-            else if(robotX == xStartPoint + DistanceSquare && robotY == yStartPoint - DistanceSquare && x == xStartPoint + DistanceSquare)
+            else if(_robotX == _xStartPoint + _distanceSquare && _robotY == _yStartPoint - _distanceSquare && _x == _xStartPoint + _distanceSquare)
             {
-                x = x - DistanceSquare;
+                _x = _x - _distanceSquare;
             }
-            return x; 
+            return _x; 
         }
-
-
-    }
-    
+    }  
 }
 
 
